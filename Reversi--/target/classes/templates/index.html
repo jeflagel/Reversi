@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="ISO-8859-1">
+    <title>Reversi</title>
+</head>
+<body ng-app="Reversi">
+<div th:switch="${partie}">
+    <h2 th:case!="null" th:text="${partie.tour}"></h2>
+    <!--<div th:case="*">-->
+    <div >
+        <h2>Othellier</h2>
+        <table>
+            <tbody>
+
+            <span id="othellier">
+            <tr th:each="x : ${#numbers.sequence( 1, 8, 1)}">
+                <td> <button th:each="y : ${#numbers.sequence( 1, 8, 1)}" th:text="${othellier.getCase(x, y).etat}" th:onClick="'joue(\'' + ${othellier.getCase(x, y).id} + '\',\'' + ${partie.tour} + '\' );'"/> </td>
+                <!--<a th:href="@{/case/getByPosition?PosX={x}&PosY={y}(x=${x}, y=${y})}"> cc</a> </td>-->
+
+            </tr>
+            </span>
+            <!--<td th:each="case : ${caseList}" th:text="${case.id}">&ndash;&gt;-->
+            </tbody>
+            <tbody>
+
+
+            <tr th:text="${test}">
+            </tr>
+            </tbody>
+
+
+
+
+
+        </table>
+    </div>
+
+    <p><a href="/signup">Add a new user</a></p>
+</div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script type="text/javascript">
+    $(function () {
+        $('.caseList').each(function (id, idJoueur ) {
+            $(this).on("click", function () {
+                joue(id, idJoueur);
+            });
+        });
+    });
+
+    function joue(id, idJoueur){
+        $.ajax({
+                url:'/oth/jouer?idCase='+id+'&idJoueur='+idJoueur,
+                success : function(data, textStatus, jqXHR){
+                    $("#othellier").empty();
+                    $("#othellier").load("#othellier");
+                }
+            });
+
+    }
+    </script>
+</body>
+</html>
