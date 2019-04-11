@@ -10,3 +10,7 @@ input.custom-width{
 input.spacing{
     margin-right: 5px;
 }
+
+button{
+    background-color: lightgoldenrodyellow;
+}

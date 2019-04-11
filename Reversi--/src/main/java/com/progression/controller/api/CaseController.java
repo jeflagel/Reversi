@@ -42,15 +42,6 @@ public class CaseController {
 		return caseRepository.save(c);
 	}
 
-	@GetMapping("/saveAllCases")
-	public void saveAllCases(){
-		for(int i = 1; i<=8; i++){
-			for(int j =1; j<=8; j++){
-				Case c = new Case(-1,i,j,1);
-				caseRepository.save(c);
-			}
-		}
-	}
 	@DeleteMapping("/{id}")
 	public void deleteCase(@PathVariable Case c) {
 		caseRepository.delete(c);

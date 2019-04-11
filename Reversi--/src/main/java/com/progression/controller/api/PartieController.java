@@ -41,6 +41,7 @@ public class PartieController {
 		partieRepository.delete(p);
 	}
 
+
 	@PostMapping("/partie/update")
 	@Modifying(clearAutomatically = true)
 	@Transactional

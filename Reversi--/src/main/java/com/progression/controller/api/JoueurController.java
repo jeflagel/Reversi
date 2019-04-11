@@ -40,5 +40,4 @@ public class JoueurController {
 		joueurRepository.delete(j);
 	}
 
-
 }

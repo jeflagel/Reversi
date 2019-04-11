@@ -23,7 +23,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin()
                 .successHandler((request, response, authentication) -> {
                     request.getSession().setAttribute("username", authentication.getName());
-                    response.sendRedirect("/oth");
+                    response.sendRedirect("/");
                 }).permitAll();
         http.csrf().disable();
         http.headers().frameOptions().disable();

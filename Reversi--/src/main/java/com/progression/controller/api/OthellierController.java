@@ -1,5 +1,6 @@
 package com.progression.controller.api;
 
+import com.progression.business.InitConfiguration;
 import com.progression.model.*;
 import com.progression.repository.CaseRepository;
 import com.progression.repository.JoueurRepository;
@@ -27,30 +28,61 @@ public class OthellierController {
 	@Autowired
 	private PartieRepository partieRepository;
 
+	@Autowired
+	private InitConfiguration initConfiguration;
 
 
 
-	@GetMapping
-	public ModelAndView displayOthellier() {
-		return getOthellier();
+	@GetMapping("/{idPartie}")
+	public ModelAndView displayOthellier(@PathVariable String idPartie) {
+		return getOthellier(Integer.parseInt(idPartie));
 	}
 
 
 
-	public ModelAndView getOthellier() {
-		ModelAndView mav = new ModelAndView("index");
+	@GetMapping("/continue")
+	public int continueGame(){
+		int idPartie;
+		List<Partie> listPartie=  partieRepository.findAll();
+		if(listPartie.size() != 0) idPartie = listPartie.get(0).getId();
+		else {
+			initConfiguration.initJoueurs();
+			idPartie = initConfiguration.initPartie();
+			initConfiguration.initAllCases();
+		}
+		return  idPartie;
+	}
+
+	@GetMapping("/init")
+	public int beginNewGame(){
+		int idPartie;
+		initConfiguration.deleteAll();
+		initConfiguration.initJoueurs();
+		idPartie = initConfiguration.initPartie();
+		initConfiguration.initAllCases();
+
+		return  idPartie;
+	}
+
+
+	public ModelAndView getOthellier(int idPartie) {
+		ModelAndView mav = new ModelAndView("jeu");
 		Othellier o = new Othellier();
 		o.setCaseList(caseRepository.findAll());
-		Partie p = partieRepository.findById(1);
+		Partie p = partieRepository.findById(idPartie);
+		Joueur j1 = joueurRepository.findById(0);
+		Joueur j2 = joueurRepository.findById(1);
 		mav.addObject("othellier", o);
 		mav.addObject("partie", p);
+		mav.addObject("j1", j1);
+		mav.addObject("j2", j2);
 		return mav;
 	}
 
 
 	@RequestMapping(value = "test", method = RequestMethod.GET)
 	public ModelAndView getTest() {
-		ModelAndView mav = new ModelAndView("index");
+		ModelAndView mav = new ModelAndView("jeu");
 		mav.addObject("test", 2);
 		return mav;
 	}
@@ -59,8 +91,8 @@ public class OthellierController {
 		return caseRepository.findByPositionXAndPositionY(c.getPositionX()+d.getX(), c.getPositionY()+d.getY());
 	}
 	@GetMapping("/jouer")
-	public boolean getPlay(@RequestParam int idCase, @RequestParam int idJoueur){
-		Partie partie = partieRepository.findById(1);
+	public boolean getPlay(@RequestParam int idCase, @RequestParam int idJoueur , @RequestParam int idPartie){
+		Partie partie = partieRepository.findById(idPartie);
 		int somme = 0;
 		Joueur j2;
 		boolean aJoue = false;
@@ -87,16 +119,18 @@ public class OthellierController {
 			caseJoue.setEtat(idJoueur);
 			caseRepository.save(caseJoue);
 			Case c = caseJoue;
+			System.out.println("-------------");
 			for (Direction dir : directions
 			) {
 				if (dir.getRetournement() != 0) {
 
 					c = caseJoue;
 					c = avancer(c, dir);
+					System.out.println(dir.getRetournement());
 					for(int i= 0 ; i< dir.getRetournement(); i++) {
 						c.setEtat(idJoueur);
 						caseRepository.save(c);
-						avancer(c, dir);
+						c = avancer(c, dir);
 					}
 				}
 			}
@@ -117,13 +151,13 @@ public class OthellierController {
 		directions.add(new Direction(-1, 0,0));
 		directions.add(new Direction(-1, 1,0));
 		directions.add(new Direction(1, -1,0));
-
+		boolean nonCaseVide = true;
 		Case caseJoue = caseRepository.findById(idCase);
 		if(caseJoue.getEtat()==-1){
 			Othellier oth = new Othellier();
 			oth.setCaseList(caseRepository.findAll());
 			Case c = caseJoue;
-
+			int idJ2 = (idjoueur == 1) ? 0 : 1 ;
 			int retournement = 0;
 			int sommeRetournements = 0;
 			for (Direction dir : directions
@@ -131,13 +165,17 @@ public class OthellierController {
 				c= caseJoue;
 				c = avancer(c, dir);
 
-				while (c != null && c.getEtat() != idjoueur) {
+				while (c != null && c.getEtat() != idjoueur && nonCaseVide) {
+					if(c.getEtat()==-1) nonCaseVide=false;
 					sommeRetournements++;
 					retournement ++;
 					c = avancer(c, dir);
+
 				}
-				if (c!=null) dir.setRetournement(retournement);
+				if (c!=null && nonCaseVide) dir.setRetournement(retournement);
+				else dir.setRetournement(0);
 				retournement = 0;
+				nonCaseVide = true;
 			}}
 		return directions;
 

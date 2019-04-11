@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+        <html xmlns:th="http://www.w3.org/1999/xhtml">
+        <head>
+            <meta charset="ISO-8859-1">
+<!--            <link rel="stylesheet" type="text/css" th:href="../static.css/app/app.css">-->
+            <style>
+                button{
+                    background-color: bisque;
+                    height: 70px;
+                    width: 70px;
+                    border-radius: 5px;
+                }
+
+
+            </style>
+            <title>Reversi</title>
+        </head>
+<body ng-app="Reversi">
+<div th:switch="${partie}">
+    <div th:case="null">
+        <button th:text="COMMENCER LA PARTIE"></button>
+    </div>
+    <div th:case="*">
+        <div th:case!="null" >
+            <div th:if="${partie.numTour}==60">
+                <h3 th:if="${j1.score}>${j2.score}">Felicitation, le joueur noir a gagne</h3>
+                <h3 th:unless="${j1.score}>${j2.score}">Felicitation, le joueur blanc a gagne</h3>
+                <button th:onClick="'init();'">Nouvelle partie</button>
+            </div>
+            <h2>Othellier</h2>
+            <div th:switch="${partie.tour}">
+                <h3 th:case="0"> C'est au Joueur <bold>noir</bold> de jouer</h3>
+                <h3 th:case="1"> C'est au Joueur <bold>blanc</bold> de jouer</h3>
+
+            </div>
+                <div class="col-md-5">
+                    <table >
+                        <tbody>
+
+                        <span id="othellier">
+                        <tr th:each="x : ${#numbers.sequence( 1, 8, 1)}">
+                            <td th:each="y : ${#numbers.sequence( 1, 8, 1)}" th:switch="${othellier.getCase(x, y).etat}">
+                                      <button th:case="-1" style="background-color: bisque" th:onClick="'joue(\'' + ${othellier.getCase(x, y).id} + '\',\'' + ${partie.tour} + '\',\'' + ${partie.id}+ '\', \'' + ${othellier.getCase(x, y).etat}+ '\' , \'' + ${this} + '\' );'"/>
+                                      <button th:case="0" style="background-color: #030303" th:onClick="'joue(\'' + ${othellier.getCase(x, y).id} + '\',\'' + ${partie.tour} + '\',\'' + ${partie.id}+ '\', \'' + ${othellier.getCase(x, y).etat}+ '\' , \'' + ${this} + '\' );'"/>
+                                      <button th:case="1" style="background-color: aliceblue" th:onClick="'joue(\'' + ${othellier.getCase(x, y).id} + '\',\'' + ${partie.tour} + '\',\'' + ${partie.id}+ '\', \'' + ${othellier.getCase(x, y).etat}+ '\' , \'' + ${this} + '\' );'"/>
+
+                            </td>
+
+                        </tr>
+                        </span>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="col-md-5">
+                    <h3>Score du Joueur noir : <h3 th:text="${j1.score}"></h3></h3>
+                    <h3>Score du Joueur blanc : <h3 th:text="${j2.score}"></h3></h3>
+                </div>
+
+            </div>
+
+</div>
+</div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+
+
+    $(function () {
+        $('.caseList').each(function (id, idJoueur,idPartie, etat, button ) {
+            $(this).on("click", function () {
+                joue(id, idJoueur,idPartie);
+            });
+        });
+    });
+
+
+    function joue(id, idJoueur,idPartie){
+        $.ajax({
+            url:'/oth/jouer?idCase='+id+'&idJoueur='+idJoueur + '&idPartie=' + idPartie,
+            success : function(data, textStatus, jqXHR){
+                // $("#othellier").empty();
+                // $("#othellier").load("#othellier");
+                window.location.href = '/oth/'+idPartie;
+            }
+        });
+    }
+
+    function init() {
+        $.ajax({
+            url: '/oth/init',
+            success: function (data, textStatus, jqXHR) {
+                console.log(data);
+                window.location.href = '/oth/' + data;
+            }
+        });
+    }
+</script>
+</body>
+</html>
