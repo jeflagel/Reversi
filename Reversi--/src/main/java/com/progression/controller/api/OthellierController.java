@@ -119,14 +119,12 @@ public class OthellierController {
 			caseJoue.setEtat(idJoueur);
 			caseRepository.save(caseJoue);
 			Case c = caseJoue;
-			System.out.println("-------------");
 			for (Direction dir : directions
 			) {
 				if (dir.getRetournement() != 0) {
 
 					c = caseJoue;
 					c = avancer(c, dir);
-					System.out.println(dir.getRetournement());
 					for(int i= 0 ; i< dir.getRetournement(); i++) {
 						c.setEtat(idJoueur);
 						caseRepository.save(c);
